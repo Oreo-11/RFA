@@ -8,8 +8,61 @@
 </head>
 <body>
     <div class="post-list"></div>
+    <div>
+        <input type="text" id="title" placeholder="Введите title"><br>
+        <input type="text" id="body" placeholder="Введите пароль"><br>
+        <button onclick="addPost()">Отправить</button>
+        
+    </div>
+
+    <script>
+
+async function getPosts() {
+    let res = await fetch('http://test/posts');
+    let posts = await res.json();
+
+    document.querySelector(".post-list").innerHTML = '';
+
+    posts.forEach((post) => {
+        document.querySelector(".post-list").innerHTML += `
+        <div>
+        <h1>${post.title}</h1>
+        <button onclick="deletePost(${post.id})">Удалить</button>
+        </div>`
+    })
+}
 
 
-    <script src="main.js"></script>
+
+
+async function addPost() {
+  let title = document.querySelector("#title").value;
+  let body = document.querySelector("#body").value;
+
+  let formData = new FormData();
+  formData.append('title', title);
+  formData.append('body', body);
+
+  const res = await fetch('http://test/posts', {method: 'POST', body: formData});
+
+  const data = await res.json();
+
+  if(data.status === true) {
+    await getPosts();
+  }
+}
+
+
+async function deletePost(id) {
+    const res = await fetch(`http://test/posts/${id}`, {method: 'DELETE'});
+
+    const data = await res.json();
+
+    if( data.status === true) {
+        await getPosts();
+    }
+}
+getPosts();
+    </script>
 </body>
 </html>
